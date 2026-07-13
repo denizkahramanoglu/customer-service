@@ -1,11 +1,10 @@
 package com.example.customer_service.controller;
 
-import com.example.customer_service.entity.CustomerEntity;
+import com.example.customer_service.dto.CustomerRequestDTO;
+import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -15,7 +14,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping
-    public CustomerEntity addCustomer(@RequestBody CustomerEntity customerEntity) {
-        return customerService.createCustomer(customerEntity);
+    public CustomerResponseDTO addCustomer(@RequestBody CustomerRequestDTO requestDTO) {
+        return customerService.createCustomer(requestDTO);
     }
 }
