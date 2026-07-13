@@ -29,6 +29,6 @@ public class CustomerEntity {
 
     private LocalDate dateOfBirth;
 
-    @Column(unique = true, length = 15)
+    @Column(nullable = false, unique = true, length = 15)
     private String phoneNumber;
 }
