@@ -1,0 +1,53 @@
+services:
+  customer-db:
+    image: postgres:18-alpine
+    container_name: customer-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-customeruser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secretpass}
+      POSTGRES_DB: ${DB_NAME:-customerdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-customeruser} -d ${DB_NAME:-customerdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - customer_network
+
+  customer-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: customer-app
+    depends_on:
+      customer-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/${DB_NAME:-customerdb}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-customeruser}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-secretpass}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8080:8080"
+    networks:
+      - customer_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  customer_network:
+    driver: bridge

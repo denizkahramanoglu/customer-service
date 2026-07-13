@@ -1,0 +1,15 @@
+target/
+*.jar
+*.class
+*.log
+.git
+.gitignore
+.mvn
+mvnw
+mvnw.cmd
+.DS_Store
+.idea
+*.iml
+.vscode
+node_modules
+README.md
