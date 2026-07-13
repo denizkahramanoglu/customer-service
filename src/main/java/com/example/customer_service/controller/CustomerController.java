@@ -14,7 +14,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping("add")
+    @PostMapping
     public CustomerResponseDTO addCustomer(@RequestBody CustomerRequestDTO requestDTO) {
         return customerService.createCustomer(requestDTO);
     }
