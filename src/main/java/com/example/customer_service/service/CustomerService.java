@@ -1,6 +1,6 @@
 package com.example.customer_service.service;
 
-import com.example.customer_service.dto.CustomerMapper;
+import com.example.customer_service.mapper.CustomerMapper;
 import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.CustomerEntity;

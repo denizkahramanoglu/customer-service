@@ -1,5 +1,7 @@
-package com.example.customer_service.dto;
+package com.example.customer_service.mapper;
 
+import com.example.customer_service.dto.CustomerRequestDTO;
+import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.CustomerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
