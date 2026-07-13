@@ -8,6 +8,8 @@ import com.example.customer_service.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
@@ -19,5 +21,10 @@ public class CustomerService {
         CustomerEntity entity = customerMapper.toEntity(requestDTO);
         CustomerEntity savedEntity = customerRepository.save(entity);
         return customerMapper.toResponseDTO(savedEntity);
+    }
+    public List<CustomerResponseDTO> getAllCustomers() {
+        return customerRepository.findAll().stream()
+                .map(customerMapper::toResponseDTO)
+                .toList();
     }
 }

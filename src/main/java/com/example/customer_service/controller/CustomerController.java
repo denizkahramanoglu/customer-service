@@ -5,6 +5,7 @@ import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -13,8 +14,12 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping
+    @PostMapping("add")
     public CustomerResponseDTO addCustomer(@RequestBody CustomerRequestDTO requestDTO) {
         return customerService.createCustomer(requestDTO);
+    }
+    @GetMapping
+    public List<CustomerResponseDTO> getAllCustomers() {
+        return customerService.getAllCustomers();
     }
 }
