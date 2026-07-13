@@ -17,15 +17,15 @@ public class CustomerEntity {
     private String identityNumber;
 
     @Column(nullable = false)
-    private String firstName; // Ad
+    private String firstName;
 
     @Column(nullable = false)
-    private String lastName; // Soyad
+    private String lastName;
 
     @Column(length = 500)
     private String address;
 
-    private String placeOfBirth; // Doğum Yeri
+    private String placeOfBirth;
 
     private LocalDate dateOfBirth;
 

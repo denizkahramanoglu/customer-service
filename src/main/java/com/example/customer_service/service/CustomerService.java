@@ -16,10 +16,4 @@ public class CustomerService {
     public CustomerEntity createCustomer(CustomerEntity customerEntity) {
         return customerRepository.save(customerEntity);
     }
-    public List<CustomerEntity> getAllCustomers() {
-        return customerRepository.findAll();
-    }
-    public CustomerEntity getCustomerByIdentityNumber(String identityNumber) {
-        return customerRepository.findByIdentityNumber(identityNumber);
-    }
 }

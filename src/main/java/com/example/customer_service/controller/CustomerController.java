@@ -18,12 +18,4 @@ public class CustomerController {
     public CustomerEntity addCustomer(@RequestBody CustomerEntity customerEntity) {
         return customerService.createCustomer(customerEntity);
     }
-    @GetMapping
-    public List<CustomerEntity> getCustomers() {
-        return customerService.getAllCustomers();
-    }
-    @GetMapping("/{identityNumber}")
-    public CustomerEntity getCustomerByIdentityNumber(@PathVariable String identityNumber) {
-        return customerService.getCustomerByIdentityNumber(identityNumber);
-    }
 }
