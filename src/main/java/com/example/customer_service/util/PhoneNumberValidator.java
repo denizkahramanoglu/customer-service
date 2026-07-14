@@ -22,6 +22,6 @@ public class PhoneNumberValidator {
             throw new IllegalArgumentException("Geçersiz cep telefonu formatı! Lütfen doğru bir numara giriniz.");
         }
 
-        return cleaned; // Veritabanına kaydedilecek tertemiz "5XXXXXXXXX" formatı
+        return cleaned;
     }
 }

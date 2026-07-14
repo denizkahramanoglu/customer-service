@@ -22,4 +22,5 @@ public class CustomerController {
     public List<CustomerResponseDTO> getAllCustomers() {
         return customerService.getAllCustomers();
     }
+
 }
