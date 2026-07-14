@@ -4,14 +4,23 @@ import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.CustomerEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
 
-    CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
-
+    @Mapping(target = "firstName", source = "firstName", qualifiedByName = "trimString")
+    @Mapping(target = "lastName", source = "lastName", qualifiedByName = "trimString")
     CustomerEntity toEntity(CustomerRequestDTO dto);
 
     CustomerResponseDTO toResponseDTO(CustomerEntity entity);
+
+    @Named("trimString")
+    default String trimString(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.trim();
+    }
 }

@@ -9,6 +9,7 @@ import com.example.customer_service.util.PhoneNumberValidator;
 import com.example.customer_service.util.TcknValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,6 +22,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
+    @Transactional
     public CustomerResponseDTO createCustomer(CustomerRequestDTO requestDTO) {
 
         if (!TcknValidator.isValid(requestDTO.getIdentityNumber())) {
@@ -38,11 +40,8 @@ public class CustomerService {
             throw new IllegalArgumentException("18 yaşından küçükler sisteme müşteri olarak eklenemez!");
         }
 
-        requestDTO.setFirstName(requestDTO.getFirstName().trim());
-
         CustomerEntity entity = customerMapper.toEntity(requestDTO);
         CustomerEntity savedEntity = customerRepository.save(entity);
-
         return customerMapper.toResponseDTO(savedEntity);
     }
     public List<CustomerResponseDTO> getAllCustomers() {
