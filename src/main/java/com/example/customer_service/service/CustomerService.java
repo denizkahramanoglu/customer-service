@@ -1,5 +1,8 @@
 package com.example.customer_service.service;
 
+import java.util.logging.Logger;
+import com.example.customer_service.client.ParameterClient;
+import com.example.customer_service.dto.FullLocationResponseDTO;
 import com.example.customer_service.mapper.CustomerMapper;
 import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
@@ -21,10 +24,11 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final ParameterClient parameterClient;
 
     @Transactional
     public CustomerResponseDTO createCustomer(CustomerRequestDTO requestDTO) {
-
+        // İş Kuralları
         if (!TcknValidator.isValid(requestDTO.getIdentityNumber())) {
             throw new IllegalArgumentException("Geçersiz TC Kimlik Numarası!");
         }
@@ -42,11 +46,35 @@ public class CustomerService {
 
         CustomerEntity entity = customerMapper.toEntity(requestDTO);
         CustomerEntity savedEntity = customerRepository.save(entity);
-        return customerMapper.toResponseDTO(savedEntity);
+
+        // Kaydedilen veriyi zenginleştirerek dönüyoruz
+        return mapToResponseDTO(savedEntity);
     }
+
     public List<CustomerResponseDTO> getAllCustomers() {
         return customerRepository.findAll().stream()
-                .map(customerMapper::toResponseDTO)
+                .map(this::mapToResponseDTO)
                 .toList();
+    }
+
+    public CustomerResponseDTO getCustomerById(Long id) {
+        CustomerEntity entity = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Müşteri bulunamadı!"));
+        return mapToResponseDTO(entity);
+    }
+
+    // Yardımcı metot: Feign Client ile veriyi birleştirir
+    private CustomerResponseDTO mapToResponseDTO(CustomerEntity entity) {
+        CustomerResponseDTO dto = customerMapper.toResponseDTO(entity);
+
+        // Feign Client üzerinden ilçe bilgisini çek
+        try {
+            FullLocationResponseDTO location = parameterClient.getFullLocation(entity.getDistrictId());
+            dto.setAddress(location);
+        } catch (Exception e) {
+            Logger.getLogger(CustomerService.class.getName()).severe("Parametre servisine ulaşılamadı: " + e.getMessage());
+        }
+
+        return dto;
     }
 }

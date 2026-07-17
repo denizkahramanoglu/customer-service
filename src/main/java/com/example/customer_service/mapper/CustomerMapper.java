@@ -12,8 +12,10 @@ public interface CustomerMapper {
 
     @Mapping(target = "firstName", source = "firstName", qualifiedByName = "trimString")
     @Mapping(target = "lastName", source = "lastName", qualifiedByName = "trimString")
-    CustomerEntity toEntity(CustomerRequestDTO dto);
+    @Mapping(target = "districtId", source = "districtId")
 
+
+    CustomerEntity toEntity(CustomerRequestDTO dto);
     CustomerResponseDTO toResponseDTO(CustomerEntity entity);
 
     @Named("trimString")

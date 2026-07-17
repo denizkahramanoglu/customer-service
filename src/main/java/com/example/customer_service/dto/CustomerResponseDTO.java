@@ -14,8 +14,8 @@ public class CustomerResponseDTO {
     private String identityNumber;
     private String firstName;
     private String lastName;
-    private String address;
-    private String placeOfBirth;
+    private FullLocationResponseDTO address;
+    private Long placeOfBirthCityId;
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private LocalDateTime createdAt;

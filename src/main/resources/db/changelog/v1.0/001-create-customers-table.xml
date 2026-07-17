@@ -17,8 +17,11 @@
             <column name="last_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="address" type="VARCHAR(500)"/>
-            <column name="place_of_birth" type="VARCHAR(255)"/>
+            <column name="district_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="place_of_birth_city_id" type="BIGINT"/>
+
             <column name="date_of_birth" type="DATE"/>
             <column name="phone_number" type="VARCHAR(15)">
                 <constraints nullable="false" unique="true"/>

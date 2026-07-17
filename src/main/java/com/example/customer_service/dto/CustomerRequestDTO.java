@@ -13,8 +13,8 @@ public class CustomerRequestDTO {
     private String identityNumber;
     private String firstName;
     private String lastName;
-    private String address;
-    private String placeOfBirth;
+    private Long districtId;
+    private Long placeOfBirthCityId;
     private LocalDate dateOfBirth;
     private String phoneNumber;
 }

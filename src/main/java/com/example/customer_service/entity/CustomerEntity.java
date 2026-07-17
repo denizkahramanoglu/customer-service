@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,12 +24,11 @@ public class CustomerEntity {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(length = 500)
-    private String address;
+    @Column(name = "district_id", nullable = false)
+    private Long districtId;
 
-    private String placeOfBirth;
-
-    private LocalDate dateOfBirth;
+    @Column(name = "place_of_birth_city_id")
+    private Long placeOfBirthCityId;
 
     @Column(nullable = false, unique = true, length = 15)
     private String phoneNumber;
