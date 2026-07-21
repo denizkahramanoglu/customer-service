@@ -4,6 +4,7 @@ import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -21,6 +22,10 @@ public class CustomerController {
     @GetMapping
     public List<CustomerResponseDTO> getAllCustomers() {
         return customerService.getAllCustomers();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<CustomerResponseDTO> getCustomer(@PathVariable Long id) {
+        return ResponseEntity.ok(customerService.getCustomerById(id));
     }
 
 }

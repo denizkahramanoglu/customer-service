@@ -9,14 +9,20 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "firstName", source = "firstName", qualifiedByName = "trimString")
     @Mapping(target = "lastName", source = "lastName", qualifiedByName = "trimString")
     @Mapping(target = "districtId", source = "districtId")
 
-
     CustomerEntity toEntity(CustomerRequestDTO dto);
+
+    @Mapping(target = "address", ignore = true)
     CustomerResponseDTO toResponseDTO(CustomerEntity entity);
+
 
     @Named("trimString")
     default String trimString(String value) {
