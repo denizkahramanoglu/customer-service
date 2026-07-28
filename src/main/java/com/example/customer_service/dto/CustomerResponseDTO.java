@@ -1,14 +1,10 @@
 package com.example.customer_service.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class CustomerResponseDTO {
     private Long id;
     private String identityNumber;
@@ -22,4 +18,5 @@ public class CustomerResponseDTO {
     private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
+    private String gender;
 }

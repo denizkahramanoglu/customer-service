@@ -17,4 +17,5 @@ public class CustomerRequestDTO {
     private Long placeOfBirthCityId;
     private LocalDate dateOfBirth;
     private String phoneNumber;
+    private String gender;
 }

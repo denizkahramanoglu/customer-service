@@ -3,6 +3,8 @@ package com.example.customer_service.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "customers")
+@SQLDelete(sql = "UPDATE customers SET is_deleted = true WHERE id=?")
+@SQLRestriction("is_deleted = false")
 @Data
 public class CustomerEntity {
 
@@ -26,6 +30,9 @@ public class CustomerEntity {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
+    private String gender;
+
     @Column(name = "district_id", nullable = false)
     private Long districtId;
 
@@ -37,7 +44,6 @@ public class CustomerEntity {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
-
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -52,6 +58,9 @@ public class CustomerEntity {
 
     @Column(name = "updated_by")
     private String updatedBy;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }
 
 

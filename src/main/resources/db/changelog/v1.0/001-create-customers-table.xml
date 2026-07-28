@@ -17,6 +17,9 @@
             <column name="last_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="gender" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
             <column name="district_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>

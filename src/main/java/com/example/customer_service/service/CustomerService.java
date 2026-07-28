@@ -1,6 +1,6 @@
 package com.example.customer_service.service;
 
-import java.util.logging.Logger;
+
 import com.example.customer_service.client.ParameterClient;
 import com.example.customer_service.dto.FullLocationResponseDTO;
 import com.example.customer_service.exception.BusinessException;
@@ -9,6 +9,7 @@ import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.CustomerEntity;
 import com.example.customer_service.repository.CustomerRepository;
+import com.example.customer_service.util.ExceptionUtil;
 import com.example.customer_service.util.PhoneNumberValidator;
 import com.example.customer_service.util.TcknValidator;
 import feign.FeignException;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -34,29 +36,12 @@ public class CustomerService {
     @Transactional
     public CustomerResponseDTO createCustomer(CustomerRequestDTO requestDTO) {
 
-        if (!TcknValidator.isValid(requestDTO.getIdentityNumber())) {
-            throw new BusinessException("Geçersiz TC Kimlik Numarası!", HttpStatus.BAD_REQUEST);
-        }
-
+        ExceptionUtil.businessExceptionCheckerAndThrowException(!TcknValidator.isValid(requestDTO.getIdentityNumber()), "Geçersiz TC Kimlik Numarası!", HttpStatus.BAD_REQUEST);
         String validPhoneNumber = PhoneNumberValidator.cleanAndValidate(requestDTO.getPhoneNumber());
-
-        // Zaten var olan kayıtlar için 409 Conflict dönmek en doğru mimari karardır
-        if (customerRepository.existsByIdentityNumber(requestDTO.getIdentityNumber())) {
-            throw new BusinessException("Bu TC Kimlik Numarası sistemde zaten kayıtlı!", HttpStatus.CONFLICT);
-        }
-
-        if (customerRepository.existsByPhoneNumber(validPhoneNumber)) {
-            throw new BusinessException("Bu telefon numarası sistemde zaten kayıtlı!", HttpStatus.CONFLICT);
-        }
-
-        int age = Period.between(requestDTO.getDateOfBirth(), LocalDate.now()).getYears();
-        if (age < 18) {
-            throw new BusinessException("18 yaşından küçükler sisteme müşteri olarak eklenemez!", HttpStatus.BAD_REQUEST);
-        }
-
+        ExceptionUtil.businessExceptionCheckerAndThrowException(customerRepository.existsByIdentityNumber(requestDTO.getIdentityNumber()), "Bu TC Kimlik Numarası sistemde zaten kayıtlı!", HttpStatus.CONFLICT);
+        ExceptionUtil.businessExceptionCheckerAndThrowException(customerRepository.existsByPhoneNumber(validPhoneNumber), "Bu telefon numarası sistemde zaten kayıtlı!", HttpStatus.CONFLICT);
         CustomerEntity entity = customerMapper.toEntity(requestDTO);
         CustomerEntity savedEntity = customerRepository.save(entity);
-
         return mapToResponseDTO(savedEntity);
     }
 
@@ -79,7 +64,7 @@ public class CustomerService {
         CustomerResponseDTO dto = customerMapper.toResponseDTO(entity);
 
         try {
-            // Feign Client otomatik olarak JSON'u DTO'ya dönüştürüyor
+
             FullLocationResponseDTO location = parameterClient.getFullLocation(entity.getDistrictId());
             dto.setAddress(location);
 
@@ -91,5 +76,28 @@ public class CustomerService {
         }
 
         return dto;
+    }
+
+    public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO requestDTO) {
+        // 1. Müşteriyi bul, yoksa hata fırlat
+        CustomerEntity existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Müşteri bulunamadı. ID: " + id, HttpStatus.NOT_FOUND));
+
+        existingCustomer.setFirstName(requestDTO.getFirstName());
+        existingCustomer.setLastName(requestDTO.getLastName());
+        existingCustomer.setPhoneNumber(requestDTO.getPhoneNumber());
+        CustomerEntity updatedCustomer = customerRepository.save(existingCustomer);
+        return customerMapper.toResponseDTO(updatedCustomer);
+    }
+
+    @Transactional
+    public void deleteCustomer(Long id) {
+
+        CustomerEntity existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Müşteri bulunamadı. ID: " + id, HttpStatus.NOT_FOUND));
+
+        ExceptionUtil.businessExceptionCheckerAndThrowException(existingCustomer.isDeleted(), "Bu müşteri zaten sistemden silinmiş.", HttpStatus.BAD_REQUEST);
+        existingCustomer.setDeleted(true);
+        customerRepository.save(existingCustomer);
     }
 }
