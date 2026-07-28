@@ -18,10 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 @Slf4j
@@ -42,6 +38,7 @@ public class CustomerService {
         ExceptionUtil.businessExceptionCheckerAndThrowException(customerRepository.existsByPhoneNumber(validPhoneNumber), "Bu telefon numarası sistemde zaten kayıtlı!", HttpStatus.CONFLICT);
         CustomerEntity entity = customerMapper.toEntity(requestDTO);
         CustomerEntity savedEntity = customerRepository.save(entity);
+
         return mapToResponseDTO(savedEntity);
     }
 
@@ -79,7 +76,6 @@ public class CustomerService {
     }
 
     public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO requestDTO) {
-        // 1. Müşteriyi bul, yoksa hata fırlat
         CustomerEntity existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Müşteri bulunamadı. ID: " + id, HttpStatus.NOT_FOUND));
 
