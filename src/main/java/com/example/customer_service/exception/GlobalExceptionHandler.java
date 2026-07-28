@@ -21,7 +21,6 @@ public class GlobalExceptionHandler {
 
     private final Clock clock;
 
-    // 1. Kendi yazdığımız iş kuralı hatalarını yakalar
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException ex) {
 
