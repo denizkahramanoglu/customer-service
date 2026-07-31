@@ -1,0 +1,52 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+<changeSet id="20260732-create-customer-cards-table-v2" author="developer">
+        <!-- 1. Tablonun Oluşturulması -->
+    <createTable tableName="customer_cards">
+        <!-- PK (GenerationType.IDENTITY uyumu için autoIncrement eklendi) -->
+        <column name="id" type="BIGINT" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+
+        <!-- Müşteri Bağlantısı (FK) -->
+        <column name="customer_id" type="BIGINT">
+            <constraints nullable="false"/>
+        </column>
+
+        <!-- Kartın Arayüzdeki Adı (Örn: İş Bankası Kartım) -->
+        <column name="card_alias" type="VARCHAR(50)"/>
+
+        <!-- Ham Kart Bilgileri -->
+        <column name="card_number" type="VARCHAR(16)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="expire_month" type="INT">
+            <constraints nullable="false"/>
+        </column>
+        <column name="expire_year" type="INT">
+            <constraints nullable="false"/>
+        </column>
+
+            <!-- Yeni Eklenen Audit ve Soft-Delete Alanları -->
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="updated_by" type="VARCHAR(100)"/>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="customer_cards"
+                                 baseColumnNames="customer_id"
+                                 constraintName="fk_customer_cards_customer"
+                                 referencedTableName="customers"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

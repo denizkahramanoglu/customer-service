@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
@@ -7,5 +7,6 @@
     <include file="v1.0/001-create-customers-table.xml" relativeToChangelogFile="true"/>
     <include file="v1.0/002-add-audit-fields.xml" relativeToChangelogFile="true"/>
     <include file="v1.0/003-create-delete-flag.xml" relativeToChangelogFile="true"/>
+    <include file="v1.0/005-create-customer-cards-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

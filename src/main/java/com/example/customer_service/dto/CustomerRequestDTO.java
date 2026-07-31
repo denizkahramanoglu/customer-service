@@ -18,4 +18,5 @@ public class CustomerRequestDTO {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private String gender;
+    private String email;
 }
