@@ -1,13 +1,15 @@
 package com.example.customer_service.service;
 
-
 import com.example.customer_service.client.ParameterClient;
 import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.dto.FullLocationResponseDTO;
+import com.example.customer_service.entity.CustomerCardEntity;
 import com.example.customer_service.entity.CustomerEntity;
 import com.example.customer_service.exception.BusinessException;
+import com.example.customer_service.mapper.CustomerCardMapper;
 import com.example.customer_service.mapper.CustomerMapper;
+import com.example.customer_service.repository.CustomerCardRepository;
 import com.example.customer_service.repository.CustomerRepository;
 import com.example.customer_service.util.PhoneNumberValidator;
 import com.example.customer_service.util.TcknValidator;
@@ -19,7 +21,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import java.time.LocalDate;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +42,13 @@ class CustomerServiceTest {
     @Mock
     private ParameterClient parameterClient;
 
+    // EKSİK OLAN MOCK'LAR EKLENDİ
+    @Mock
+    private CustomerCardRepository customerCardRepository;
+
+    @Mock
+    private CustomerCardMapper customerCardMapper;
+
     @InjectMocks
     private CustomerService customerService;
 
@@ -47,7 +57,7 @@ class CustomerServiceTest {
     @Test
     void createCustomer_InvalidTckn_ThrowsException() {
         CustomerRequestDTO request = new CustomerRequestDTO();
-        request.setIdentityNumber("123"); // Geçersiz TCKN simülasyonu
+        request.setIdentityNumber("123");
 
         try (MockedStatic<TcknValidator> tcknMock = mockStatic(TcknValidator.class)) {
             tcknMock.when(() -> TcknValidator.isValid(anyString())).thenReturn(false);
@@ -104,16 +114,16 @@ class CustomerServiceTest {
             assertEquals("Bu telefon numarası sistemde zaten kayıtlı!", exception.getMessage());
         }
     }
+
     @Test
     void createCustomer_Success() {
         CustomerRequestDTO request = new CustomerRequestDTO();
-        // EKSİK OLAN SATIRLAR BURASI
-        request.setIdentityNumber("11111111110"); // İlk if'i geçmesi için gerekli
-        request.setPhoneNumber("5551234567");     // İkinci if'i geçmesi için gerekli
-
-        request.setDateOfBirth(LocalDate.now().minusYears(25)); // 25 Yaş (Geçerli)
+        request.setIdentityNumber("11111111110");
+        request.setPhoneNumber("5551234567");
 
         CustomerEntity entity = new CustomerEntity();
+        entity.setId(1L);
+        entity.setDistrictId(34L);
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
 
         try (MockedStatic<TcknValidator> tcknMock = mockStatic(TcknValidator.class);
@@ -129,6 +139,9 @@ class CustomerServiceTest {
             when(customerRepository.save(entity)).thenReturn(entity);
             when(customerMapper.toResponseDTO(entity)).thenReturn(responseDTO);
 
+            // Ekstra bağımlılıkların davranışları (mapToResponseDTO metodunun içindekiler)
+            when(customerCardRepository.findByCustomerId(entity.getId())).thenReturn(Collections.emptyList());
+
             CustomerResponseDTO result = customerService.createCustomer(request);
 
             assertNotNull(result);
@@ -142,10 +155,12 @@ class CustomerServiceTest {
     @Test
     void getAllCustomers_Success() {
         CustomerEntity entity = new CustomerEntity();
+        entity.setId(1L);
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
 
         when(customerRepository.findAll()).thenReturn(List.of(entity));
         when(customerMapper.toResponseDTO(entity)).thenReturn(responseDTO);
+        when(customerCardRepository.findByCustomerId(entity.getId())).thenReturn(Collections.emptyList());
 
         List<CustomerResponseDTO> result = customerService.getAllCustomers();
 
@@ -163,24 +178,37 @@ class CustomerServiceTest {
     }
 
     @Test
-    void getCustomerById_Success_WithLocation() {
+    void getCustomerById_Success_WithLocationAndCards() {
         CustomerEntity entity = new CustomerEntity();
+        entity.setId(1L);
         entity.setDistrictId(34L);
+
+        CustomerCardEntity cardEntity = new CustomerCardEntity();
+
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
         FullLocationResponseDTO location = new FullLocationResponseDTO();
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(customerMapper.toResponseDTO(entity)).thenReturn(responseDTO);
+
+        // Kart servislerinin moklanması
+        when(customerCardRepository.findByCustomerId(1L)).thenReturn(List.of(cardEntity));
+        when(customerCardMapper.toResponseDTO(cardEntity)).thenReturn(null); // veya mock bir response
+
+        // Parameter client moklanması
         when(parameterClient.getFullLocation(34L)).thenReturn(location);
 
         CustomerResponseDTO result = customerService.getCustomerById(1L);
 
         assertEquals(location, result.getAddress());
+        assertEquals(1, result.getCards().size());
+        verify(customerCardRepository, times(1)).findByCustomerId(1L);
     }
 
     @Test
     void getCustomerById_FeignNotFound_HandledGracefully() {
         CustomerEntity entity = new CustomerEntity();
+        entity.setId(1L);
         entity.setDistrictId(34L);
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
 
@@ -188,16 +216,19 @@ class CustomerServiceTest {
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(customerMapper.toResponseDTO(entity)).thenReturn(responseDTO);
-        when(parameterClient.getFullLocation(34L)).thenThrow(mockNotFound); // İlk catch bloğu
+        when(customerCardRepository.findByCustomerId(1L)).thenReturn(Collections.emptyList());
+        when(parameterClient.getFullLocation(34L)).thenThrow(mockNotFound);
 
         CustomerResponseDTO result = customerService.getCustomerById(1L);
 
-        assertNull(result.getAddress()); // Hata fırlatmadı, adress null kaldı
+        assertNull(result.getAddress());
+        verify(parameterClient, times(1)).getFullLocation(34L);
     }
 
     @Test
     void getCustomerById_FeignGenericException_HandledGracefully() {
         CustomerEntity entity = new CustomerEntity();
+        entity.setId(1L);
         entity.setDistrictId(34L);
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
 
@@ -206,11 +237,13 @@ class CustomerServiceTest {
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(customerMapper.toResponseDTO(entity)).thenReturn(responseDTO);
-        when(parameterClient.getFullLocation(34L)).thenThrow(mockFeignException); // İkinci catch bloğu
+        when(customerCardRepository.findByCustomerId(1L)).thenReturn(Collections.emptyList());
+        when(parameterClient.getFullLocation(34L)).thenThrow(mockFeignException);
 
         CustomerResponseDTO result = customerService.getCustomerById(1L);
 
-        assertNull(result.getAddress()); // Hata fırlatmadı, adress null kaldı
+        assertNull(result.getAddress());
+        verify(parameterClient, times(1)).getFullLocation(34L);
     }
 
     // --- updateCustomer TESTLERİ ---
@@ -229,6 +262,7 @@ class CustomerServiceTest {
         request.setFirstName("Ahmet");
         request.setLastName("Yılmaz");
         request.setPhoneNumber("5559998877");
+        request.setEmail("ahmet@test.com");
 
         CustomerEntity existing = new CustomerEntity();
         CustomerResponseDTO responseDTO = new CustomerResponseDTO();
@@ -242,6 +276,7 @@ class CustomerServiceTest {
         assertEquals("Ahmet", existing.getFirstName());
         assertEquals("Yılmaz", existing.getLastName());
         assertEquals("5559998877", existing.getPhoneNumber());
+        assertEquals("ahmet@test.com", existing.getEmail());
         assertNotNull(result);
     }
 
@@ -263,6 +298,7 @@ class CustomerServiceTest {
 
         BusinessException exception = assertThrows(BusinessException.class, () -> customerService.deleteCustomer(1L));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Bu müşteri zaten sistemden silinmiş.", exception.getMessage());
     }
 
     @Test

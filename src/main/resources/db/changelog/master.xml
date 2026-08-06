@@ -7,6 +7,6 @@
     <include file="v1.0/001-create-customers-table.xml" relativeToChangelogFile="true"/>
     <include file="v1.0/002-add-audit-fields.xml" relativeToChangelogFile="true"/>
     <include file="v1.0/003-create-delete-flag.xml" relativeToChangelogFile="true"/>
-    <include file="v1.0/005-create-customer-cards-table.xml" relativeToChangelogFile="true"/>
+    <include file="v1.0/008-create-customer-cards-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

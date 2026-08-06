@@ -3,7 +3,7 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-<changeSet id="20260732-create-customer-cards-table-v2" author="developer">
+<changeSet id="20260832-create-customer-cards-table-v2" author="developer">
         <!-- 1. Tablonun Oluşturulması -->
     <createTable tableName="customer_cards">
         <!-- PK (GenerationType.IDENTITY uyumu için autoIncrement eklendi) -->

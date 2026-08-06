@@ -1,7 +1,10 @@
 package com.example.customer_service.controller;
 
+import com.example.customer_service.dto.CreateCustomerCardRequestDTO;
+import com.example.customer_service.dto.CustomerCardResponseDTO;
 import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
+import com.example.customer_service.service.CustomerCardService;
 import com.example.customer_service.service.CustomerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -24,6 +28,9 @@ class CustomerControllerTest {
 
     @Mock
     private CustomerService customerService;
+
+    @Mock
+    private CustomerCardService customerCardService;
 
     @InjectMocks
     private CustomerController customerController;
@@ -70,5 +77,31 @@ class CustomerControllerTest {
         customerController.deleteCustomer(1L);
 
         verify(customerService).deleteCustomer(1L);
+    }
+    @Test
+    @DisplayName("addCard - Servis çağrılmalı ve CREATED response dönülmeli")
+    void addCard_shouldCallServiceAndReturnCreatedResponse() {
+
+        CreateCustomerCardRequestDTO request = new CreateCustomerCardRequestDTO();
+
+        ResponseEntity<String> response = customerController.addCard(request);
+
+        verify(customerCardService).addCardToCustomer(request);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Kart başarıyla eklendi.", response.getBody());
+    }
+
+    @Test
+    @DisplayName("getCustomerCards - Servis çağrılmalı ve kart listesi ResponseEntity içinde dönülmeli")
+    void getCustomerCards_shouldReturnCardList() {
+
+        List<CustomerCardResponseDTO> mockCards = List.of(new CustomerCardResponseDTO());
+        when(customerCardService.getCustomerCards(1L)).thenReturn(mockCards);
+
+        ResponseEntity<List<CustomerCardResponseDTO>> response =
+                customerController.getCustomerCards(1L);
+
+        verify(customerCardService).getCustomerCards(1L);
+        assertEquals(ResponseEntity.ok(mockCards), response);
     }
 }
